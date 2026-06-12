@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Toko</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f0f0f;
+      --surface: #1a1a1a;
+      --surface2: #242424;
+      --border: #2e2e2e;
+      --accent: #25d366;
+      --accent-dark: #1da851;
+      --danger: #ff4444;
+      --danger-dark: #cc0000;
+      --text: #f0f0f0;
+      --text-muted: #888;
+      --radius: 12px;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* LOGIN SCREEN */
+    .login-screen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .login-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      width: 100%;
+      max-width: 360px;
+    }
+
+    .login-box h2 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .login-box p {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    /* FORM ELEMENTS */
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="password"],
+    input[type="url"],
+    textarea {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, textarea:focus { border-color: var(--accent); }
+    textarea { resize: vertical; min-height: 80px; }
+
+    .error-msg {
+      color: var(--danger);
+      font-size: 13px;
+      margin-top: 8px;
+      display: none;
+    }
+
+    /* BUTTONS */
+    .btn {
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #000;
+      width: 100%;
+      padding: 12px;
+    }
+
+    .btn-primary:hover { background: var(--accent-dark); }
+
+    .btn-danger {
+      background: transparent;
+      color: var(--danger);
+      border: 1px solid var(--danger);
+      padding: 6px 12px;
+      font-size: 13px;
+    }
+
+    .btn-danger:hover { background: var(--danger); color: #fff; }
+
+    .btn-edit {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      font-size: 13px;
+    }
+
+    .btn-edit:hover { border-color: var(--accent); color: var(--accent); }
+
+    .btn-sm {
+      padding: 6px 14px;
+      font-size: 13px;
+    }
+
+    /* MAIN LAYOUT */
+    .app { display: none; }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .logo span { color: var(--text); }
+
+    .header-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn-logout {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 13px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .btn-logout:hover { border-color: var(--danger); color: var(--danger); }
+
+    /* MAIN CONTENT */
+    .main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 24px 80px;
+    }
+
+    /* STATS */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-size: 26px;
+      font-weight: 700;
+    }
+
+    .stat-value.green { color: var(--accent); }
+
+    /* ADD PRODUCT FORM */
+    .card-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .card-box h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .btn-save {
+      background: var(--accent);
+      color: #000;
+      flex: 1;
+    }
+
+    .btn-save:hover { background: var(--accent-dark); }
+
+    .btn-cancel-edit {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    /* PRODUCT LIST */
+    .product-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .product-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: border-color 0.2s;
+    }
+
+    .product-item:hover { border-color: #3e3e3e; }
+
+    .product-thumb {
+      width: 52px;
+      height: 52px;
+      border-radius: 8px;
+      background: var(--surface2);
+      flex-shrink: 0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+
+    .product-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .product-info { flex: 1; min-width: 0; }
+
+    .product-name {
+      font-weight: 600;
+      font-size: 14px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .product-meta {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .product-price {
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .product-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    /* TOGGLE */
+    .toggle {
+      position: relative;
+      display: inline-block;
+      width: 40px;
+      height: 22px;
+    }
+
+    .toggle input { opacity: 0; width: 0; height: 0; }
+
+    .toggle-slider {
+      position: absolute;
+      inset: 0;
+      background: var(--border);
+      border-radius: 20px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .toggle-slider:before {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      background: white;
+      border-radius: 50%;
+      left: 3px;
+      top: 3px;
+      transition: 0.2s;
+    }
+
+    .toggle input:checked + .toggle-slider { background: var(--accent); }
+    .toggle input:checked + .toggle-slider:before { transform: translateX(18px); }
+
+    /* BADGE */
+    .badge-tersedia {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    .badge-tersedia.yes { background: #0d2e1a; color: var(--accent); }
+    .badge-tersedia.no { background: #2e1010; color: #ff6b6b; }
+
+    /* LOADING / EMPTY */
+    .loading-state, .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--text-muted);
+    }
+
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto 12px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 20px;
+      font-size: 14px;
+      z-index: 9999;
+      transition: transform 0.3s;
+      white-space: nowrap;
+    }
+
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.success { border-color: var(--accent); color: var(--accent); }
+    .toast.error { border-color: var(--danger); color: var(--danger); }
+
+    @media (max-width: 600px) {
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .form-row { grid-template-columns: 1fr; }
+      .product-actions { flex-direction: column; gap: 6px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <h2>🔐 Admin Login</h2>
+    <p>Masukkan password untuk masuk ke dashboard</p>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="passwordInput" placeholder="Masukkan password..." />
+      <div class="error-msg" id="loginError">Password salah. Coba lagi.</div>
+    </div>
+    <button class="btn btn-primary" onclick="doLogin()">Masuk</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="appScreen">
+  <header>
+    <div class="logo">toko<span>ku</span> <span style="font-size:13px; color: var(--text-muted); font-weight:400">/ admin</span></div>
+    <div class="header-actions">
+      <a href="index.html" style="color: var(--text-muted); font-size:13px; text-decoration:none">← Lihat Toko</a>
+      <button class="btn-logout" onclick="doLogout()">Logout</button>
+    </div>
+  </header>
+
+  <div class="main">
+    <!-- STATS -->
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-label">Total Produk</div>
+        <div class="stat-value" id="statTotal">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Tersedia</div>
+        <div class="stat-value green" id="statTersedia">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Habis</div>
+        <div class="stat-value" id="statHabis">0</div>
+      </div>
+    </div>
+
+    <!-- FORM TAMBAH/EDIT -->
+    <div class="card-box">
+      <h3 id="formTitle">➕ Tambah Produk</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nama Produk *</label>
+          <input type="text" id="fNama" placeholder="Contoh: Kaos Polos Hitam" />
+        </div>
+        <div class="form-group">
+          <label>Harga (Rp) *</label>
+          <input type="number" id="fHarga" placeholder="50000" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Deskripsi</label>
+        <textarea id="fDeskripsi" placeholder="Deskripsi singkat produk..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>URL Foto (opsional)</label>
+        <input type="url" id="fFoto" placeholder="https://example.com/foto.jpg" />
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-save" id="btnSave" onclick="saveProduk()">Simpan Produk</button>
+        <button class="btn btn-cancel-edit" id="btnCancel" onclick="cancelEdit()" style="display:none">Batal Edit</button>
+      </div>
+    </div>
+
+    <!-- DAFTAR PRODUK -->
+    <div class="card-box">
+      <h3>📦 Daftar Produk</h3>
+      <div id="productList">
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Memuat produk...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  const SUPABASE_URL = 'https://ynnumjdvtybyefadukxh.supabase.co'
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlubnVtamR2dHlieWVmYWR1a3hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyNDYwMDAsImV4cCI6MjA5NjgyMjAwMH0.ezZwUAnRryAFD5vc45b4l-1WUCE1rwZH4QhowoPZznM'
+  const ADMIN_PASSWORD = 'admin123' // GANTI INI!
+
+  let products = []
+  let editId = null
+
+  // ─── AUTH ────────────────────────────────────────────────
+  function checkLogin() {
+    if (sessionStorage.getItem('admin_logged_in') === 'true') showApp()
+  }
+
+  function doLogin() {
+    const pw = document.getElementById('passwordInput').value
+    if (pw === ADMIN_PASSWORD) {
+      sessionStorage.setItem('admin_logged_in', 'true')
+      showApp()
+    } else {
+      document.getElementById('loginError').style.display = 'block'
+    }
+  }
+
+  function doLogout() {
+    sessionStorage.removeItem('admin_logged_in')
+    document.getElementById('loginScreen').style.display = 'flex'
+    document.getElementById('appScreen').style.display = 'none'
+  }
+
+  function showApp() {
+    document.getElementById('loginScreen').style.display = 'none'
+    document.getElementById('appScreen').style.display = 'block'
+    loadProducts()
+  }
+
+  document.getElementById('passwordInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin()
+  })
+
+  // ─── API HELPERS ─────────────────────────────────────────
+  const headers = {
+    'apikey': SUPABASE_KEY,
+    'Authorization': `Bearer ${SUPABASE_KEY}`,
+    'Content-Type': 'application/json',
+    'Prefer': 'return=representation'
+  }
+
+  async function loadProducts() {
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/produk?order=id.desc`, { headers })
+      products = await res.json()
+      renderList()
+      updateStats()
+    } catch {
+      showToast('Gagal memuat produk', 'error')
+    }
+  }
+
+  async function saveProduk() {
+    const nama = document.getElementById('fNama').value.trim()
+    const harga = document.getElementById('fHarga').value.trim()
+    const deskripsi = document.getElementById('fDeskripsi').value.trim()
+    const foto_url = document.getElementById('fFoto').value.trim()
+
+    if (!nama || !harga) return showToast('Nama dan harga wajib diisi!', 'error')
+
+    const body = { nama, harga: parseInt(harga), deskripsi, foto_url, tersedia: true }
+
+    try {
+      if (editId) {
+        await fetch(`${SUPABASE_URL}/rest/v1/produk?id=eq.${editId}`, {
+          method: 'PATCH', headers, body: JSON.stringify(body)
+        })
+        showToast('Produk berhasil diupdate ✓', 'success')
+      } else {
+        await fetch(`${SUPABASE_URL}/rest/v1/produk`, {
+          method: 'POST', headers, body: JSON.stringify(body)
+        })
+        showToast('Produk berhasil ditambah ✓', 'success')
+      }
+      cancelEdit()
+      loadProducts()
+    } catch {
+      showToast('Gagal menyimpan produk', 'error')
+    }
+  }
+
+  async function deleteProduk(id) {
+    if (!confirm('Hapus produk ini?')) return
+    try {
+      await fetch(`${SUPABASE_URL}/rest/v1/produk?id=eq.${id}`, {
+        method: 'DELETE', headers
+      })
+      showToast('Produk dihapus', 'success')
+      loadProducts()
+    } catch {
+      showToast('Gagal menghapus', 'error')
+    }
+  }
+
+  async function toggleTersedia(id, val) {
+    try {
+      await fetch(`${SUPABASE_URL}/rest/v1/produk?id=eq.${id}`, {
+        method: 'PATCH', headers,
+        body: JSON.stringify({ tersedia: val })
+      })
+      loadProducts()
+    } catch {
+      showToast('Gagal update status', 'error')
+    }
+  }
+
+  function editProduk(id) {
+    const p = products.find(x => x.id === id)
+    if (!p) return
+    editId = id
+    document.getElementById('fNama').value = p.nama
+    document.getElementById('fHarga').value = p.harga
+    document.getElementById('fDeskripsi').value = p.deskripsi || ''
+    document.getElementById('fFoto').value = p.foto_url || ''
+    document.getElementById('formTitle').textContent = '✏️ Edit Produk'
+    document.getElementById('btnSave').textContent = 'Update Produk'
+    document.getElementById('btnCancel').style.display = 'block'
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  function cancelEdit() {
+    editId = null
+    document.getElementById('fNama').value = ''
+    document.getElementById('fHarga').value = ''
+    document.getElementById('fDeskripsi').value = ''
+    document.getElementById('fFoto').value = ''
+    document.getElementById('formTitle').textContent = '➕ Tambah Produk'
+    document.getElementById('btnSave').textContent = 'Simpan Produk'
+    document.getElementById('btnCancel').style.display = 'none'
+  }
+
+  // ─── RENDER ───────────────────────────────────────────────
+  function formatHarga(n) {
+    return 'Rp ' + Number(n).toLocaleString('id-ID')
+  }
+
+  function renderList() {
+    const el = document.getElementById('productList')
+    if (products.length === 0) {
+      el.innerHTML = `<div class="empty-state"><p>Belum ada produk. Tambah produk di atas!</p></div>`
+      return
+    }
+
+    el.innerHTML = products.map(p => `
+      <div class="product-item">
+        <div class="product-thumb">
+          ${p.foto_url
+            ? `<img src="${p.foto_url}" alt="${p.nama}" onerror="this.parentElement.innerHTML='📦'" />`
+            : '📦'}
+        </div>
+        <div class="product-info">
+          <div class="product-name">${p.nama}</div>
+          <div class="product-meta">
+            <span class="product-price">${formatHarga(p.harga)}</span>
+            ${p.deskripsi ? ` · ${p.deskripsi.substring(0, 40)}${p.deskripsi.length > 40 ? '...' : ''}` : ''}
+          </div>
+        </div>
+        <div class="product-actions">
+          <label class="toggle" title="Tersedia/Habis">
+            <input type="checkbox" ${p.tersedia ? 'checked' : ''} onchange="toggleTersedia(${p.id}, this.checked)" />
+            <span class="toggle-slider"></span>
+          </label>
+          <button class="btn btn-edit" onclick="editProduk(${p.id})">Edit</button>
+          <button class="btn btn-danger" onclick="deleteProduk(${p.id})">Hapus</button>
+        </div>
+      </div>
+    `).join('')
+  }
+
+  function updateStats() {
+    const tersedia = products.filter(p => p.tersedia).length
+    document.getElementById('statTotal').textContent = products.length
+    document.getElementById('statTersedia').textContent = tersedia
+    document.getElementById('statHabis').textContent = products.length - tersedia
+  }
+
+  // ─── TOAST ───────────────────────────────────────────────
+  function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast')
+    t.textContent = msg
+    t.className = `toast ${type} show`
+    setTimeout(() => t.classList.remove('show'), 2500)
+  }
+
+  checkLogin()
+</script>
+</body>
+</html>
